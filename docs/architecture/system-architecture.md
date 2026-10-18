@@ -983,17 +983,19 @@ sum by (inference_pool) (rate(vllm:time_to_first_token_seconds_count[5m]))
 | Page | 6 h | 30 min | 6× | 5% in 6 h |
 | Ticket | 3 d | 6 h | 1× | 10% in 3 d |
 
+Latency SLIs use the same windows with their own budget, for example 0.05 for a 95% TTFT objective.
+
 ```yaml
-- alert: InferenceTTFTFastBurn
+- alert: InferenceAvailabilityFastBurn
   expr: |
-    (1 - inference:ttft_sli:ratio_rate1h) > (14.4 * 0.001)
+    (1 - inference:availability_sli:ratio_rate1h) > (14.4 * 0.001)
     and
-    (1 - inference:ttft_sli:ratio_rate5m) > (14.4 * 0.001)
+    (1 - inference:availability_sli:ratio_rate5m) > (14.4 * 0.001)
   for: 2m
   labels: {severity: page}
   annotations:
-    summary: "TTFT SLO fast burn on {{ $labels.inference_pool }}"
-    runbook_url: "https://runbooks.internal/inference/ttft-burn"
+    summary: "Availability SLO fast burn on {{ $labels.inference_pool }}"
+    runbook_url: "https://runbooks.internal/inference/availability-burn"
 ```
 
 ### 13.3 Workload characterization and capacity models
