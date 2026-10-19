@@ -1442,9 +1442,12 @@ spec:
       metadata:
         serverAddress: http://mimir-query-frontend.observability:8080/prometheus
         customHeaders: X-Scope-OrgID=inference-prod
+        # Default AverageValue metric type: desired = ceil(query / threshold).
+        # The query must be an additive pool total (sum of per-pod p90 KV usage), so this
+        # targets an average p90 KV usage of 0.75 per replica. An avg() here would collapse the pool.
         query: |
-          avg(quantile_over_time(0.9,
-            inference:kv_usage:ratio{inference_pool="llama-70b-decode"}[2m]))
+          sum(max by (pod) (quantile_over_time(0.9,
+            inference:kv_usage:ratio{inference_pool="llama-70b-decode"}[2m])))
         threshold: "0.75"
     - type: prometheus
       metadata:
